@@ -2,7 +2,7 @@ import logging
 from requests import get, put, delete
 from requests.exceptions import HTTPError
 import json
-from AuthorizationService import AuthorizationService
+from .AuthorizationService import AuthorizationService
 
 # urllib3 throws some ssl warnings with older versions of python
 #   they're probably ok for the registry client to ignore
@@ -22,7 +22,7 @@ class CommonBaseClient(object):
             self.method_kwargs['verify'] = verify_ssl
         if username is not None and password is not None:
             self.method_kwargs['auth'] = (username, password)
-    
+
     def _http_response(self, url, method, data=None, **kwargs):
         """url -> full target url
            method -> method from requests

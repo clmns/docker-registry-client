@@ -1,4 +1,7 @@
-import urlparse
+try:
+    from urlparse import urlsplit
+except ImportError:
+    from urllib.parse import urlsplit
 import requests
 import logging
 
@@ -17,7 +20,7 @@ class AuthorizationService(object):
     """
     def __init__(self, registry, url="", auth=None, verify=False):
         # Registry ip:port
-        self.registry = urlparse.urlsplit(registry).netloc
+        self.registry = urlsplit(registry).netloc
         # Service url, ip:port
         self.url = url
         # Authentication (user, password) or None. Used by request to do basicauth
@@ -34,7 +37,7 @@ class AuthorizationService(object):
 
         # If we have no url then token are not required. get_new_token will not be called
         if url:
-            split = urlparse.urlsplit(url)
+            split = urlsplit(url)
             # user in url will take precedence over giver username
             if split.username and split.password:
                 self.auth = (split.username, split.password)
@@ -44,8 +47,7 @@ class AuthorizationService(object):
             self.token_required = False
 
     def get_new_token(self):
-        rsp = requests.get("%s/v2/token?service=%s&scope=%s" %
-                           (self.url, self.registry, self.desired_scope),
+        rsp = requests.get("{0}/token?service={1}&scope={2}".format(self.url, self.registry, self.desired_scope),
                            auth=self.auth, verify=self.verify)
         if not rsp.ok:
             logger.error("Can't get token for authentication")
@@ -54,6 +56,3 @@ class AuthorizationService(object):
         self.token = rsp.json()['token']
         # We managed to get a new token, update the current scope to the one we wanted
         self.scope = self.desired_scope
-
-
-
